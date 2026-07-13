@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEON VPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            padding: 16px;
+            font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: #111;
+            border: 1px solid #00aaff33;
+            border-radius: 32px;
+            padding: 24px 18px 30px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .logo { font-size: 22px; font-weight: 800; letter-spacing: 2px; color: #fff; }
+        .logo span { color: #00aaff; }
+        .badge {
+            background: #00aaff11;
+            border: 1px solid #00aaff33;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 10px;
+            color: #00aaff;
+            letter-spacing: 1px;
+        }
+        .user-card {
+            background: #1a1a1a;
+            border: 1px solid #00aaff11;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .user-card .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+            color: #aaa;
+        }
+        .user-card .row .value { color: #fff; font-weight: 600; }
+        .user-card .row .value.green { color: #00cc44; }
+        .user-card .row .value.red { color: #ff4444; }
+        .user-card .row .value.blue { color: #00aaff; }
+        .plan {
+            background: #1a1a1a;
+            border: 1px solid #00aaff11;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .plan:hover { border-color: #00aaff44; background: #1f1f1f; }
+        .plan .info .name { font-weight: 600; color: #fff; font-size: 14px; }
+        .plan .info .price { font-size: 13px; color: #00aaff; margin-top: 2px; }
+        .plan .pay-link {
+            background: #00aaff22;
+            border: 1px solid #00aaff44;
+            border-radius: 12px;
+            padding: 6px 14px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .plan .pay-link:hover { background: #00aaff33; }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #00aaff33;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { border-color: #00aaff66; background: #00aaff05; }
+        .footer {
+            text-align: center;
+            color: #222;
+            font-size: 9px;
+            margin-top: 18px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainApp">
+    <div class="header">
+        <div class="logo"><span>✦</span> NEON <span>VPN</span></div>
+        <div class="badge">v2.0</div>
+    </div>
+
+    <div class="user-card" id="userCard">
+        <div class="row"><span>👤 Пользователь</span><span class="value" id="userName">—</span></div>
+        <div class="row"><span>📅 Статус</span><span class="value red" id="userStatus">Неактивен</span></div>
+        <div class="row"><span>⏳ До</span><span class="value" id="userExpiry">—</span></div>
+        <div class="row" style="border-top:1px solid #222;padding-top:8px;margin-top:4px;">
+            <span>🔑 Ключ</span>
+            <span class="value" id="userKey" style="font-family:monospace;font-size:12px;color:#00aaff;word-break:break-all;max-width:180px;">—</span>
+        </div>
+    </div>
+
+    <div style="color:#888;font-size:12px;letter-spacing:1px;margin:16px 0 10px;">💎 ВЫБЕРИ ТАРИФ</div>
+    <div class="plan">
+        <div class="info">
+            <div class="name">1 месяц</div>
+            <div class="price">170 ₽ / 150 ⭐</div>
+        </div>
+        <a class="pay-link" href="https://t.me/tribute/app?startapp=pzSp" target="_blank">ОПЛАТИТЬ</a>
+    </div>
+    <div class="plan">
+        <div class="info">
+            <div class="name">3 месяца</div>
+            <div class="price">450 ₽ / 400 ⭐</div>
+        </div>
+        <a class="pay-link" href="https://t.me/tribute/app?startapp=pzSq" target="_blank">ОПЛАТИТЬ</a>
+    </div>
+    <div class="plan">
+        <div class="info">
+            <div class="name">6 месяцев</div>
+            <div class="price">750 ₽ / 650 ⭐</div>
+        </div>
+        <a class="pay-link" href="https://t.me/tribute/app?startapp=pzSr" target="_blank">ОПЛАТИТЬ</a>
+    </div>
+    <div class="plan">
+        <div class="info">
+            <div class="name">12 месяцев</div>
+            <div class="price">1100 ₽ / 950 ⭐</div>
+        </div>
+        <a class="pay-link" href="https://t.me/tribute/app?startapp=pzSt" target="_blank">ОПЛАТИТЬ</a>
+    </div>
+
+    <button class="btn-secondary" id="connectBtn">📱 ПОДКЛЮЧИТЬ УСТРОЙСТВО</button>
+    <div class="footer">NEON VPN © 2026</div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // ===== 1. ФУНКЦИЯ ЗАПРОСА ДАННЫХ =====
+    function fetchUserData() {
+        const data = JSON.stringify({ action: 'get_user_data' });
+        tg.sendData(data);
+        console.log('📤 Запрос отправлен:', data);
+    }
+
+    // ===== 2. ОБРАБОТКА ОТВЕТА (ПРАВИЛЬНЫЙ СПОСОБ) =====
+    // В Telegram Mini Apps ответ приходит через Telegram.WebApp.onEvent
+    // ИЛИ через глобальную переменную, но я использую проверенный метод
+
+    // Метод 1: через onEvent
+    tg.onEvent('web_app_data', function(data) {
+        try {
+            console.log('📥 Получены данные:', data);
+            const response = JSON.parse(data);
+            updateUI(response);
+        } catch (e) {
+            console.error('❌ Ошибка парсинга:', e);
+        }
+    });
+
+    // Метод 2: альтернативный (если onEvent не сработает)
+    // Перехватываем ответ через глобальный обработчик
+    const originalPostMessage = window.parent.postMessage;
+    window.parent.postMessage = function(message, targetOrigin) {
+        try {
+            if (message && typeof message === 'string') {
+                const data = JSON.parse(message);
+                if (data.type === 'web_app_data') {
+                    const response = JSON.parse(data.data);
+                    updateUI(response);
+                }
+            }
+        } catch (e) {}
+        return originalPostMessage.call(this, message, targetOrigin);
+    };
+
+    // ===== 3. ОБНОВЛЕНИЕ UI =====
+    function updateUI(response) {
+        console.log('🔄 Обновляем UI:', response);
+        
+        document.getElementById('userName').textContent = response.username || '—';
+        document.getElementById('userKey').textContent = response.key || '—';
+        document.getElementById('userExpiry').textContent = response.subscription_end ? new Date(response.subscription_end).toLocaleDateString() : '—';
+        
+        const statusEl = document.getElementById('userStatus');
+        statusEl.textContent = response.status || '❌ Неизвестно';
+        
+        if (response.status && response.status.includes('Активна')) {
+            statusEl.className = 'value green';
+        } else if (response.status && response.status.includes('Пробная')) {
+            statusEl.className = 'value blue';
+        } else {
+            statusEl.className = 'value red';
+        }
+    }
+
+    // ===== 4. ЗАПРАШИВАЕМ ПРИ ЗАГРУЗКЕ =====
+    setTimeout(fetchUserData, 500);
+
+    // ===== 5. ПРИ ОТКРЫТИИ СТРАНИЦЫ =====
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(fetchUserData, 300);
+        }
+    });
+
+    // ===== 6. КНОПКА ПОДКЛЮЧИТЬ =====
+    document.getElementById('connectBtn').addEventListener('click', function() {
+        const key = document.getElementById('userKey').textContent;
+        if (key && key !== '—' && key !== 'Не найден') {
+            tg.showAlert(`📱 Ваш ключ:\n${key}\n\nСкопируйте его и вставьте в приложение (Happ, v2rayNG, Streisand).`);
+        } else {
+            tg.showAlert('❌ Ключ не найден. Купите подписку.');
+            // Заодно запросим данные заново
+            fetchUserData();
+        }
+    });
+</script>
+</body>
+</html>

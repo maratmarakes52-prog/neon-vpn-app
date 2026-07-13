@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEON VPN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        html, body {
+            touch-action: pan-y;
+            -webkit-text-size-adjust: 100%;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 16px;
+            font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: radial-gradient(ellipse at 20% 20%, rgba(0, 100, 255, 0.08), transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(0, 150, 255, 0.05), transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .container {
+            max-width: 420px;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.92);
+            border: 1px solid rgba(0, 100, 255, 0.15);
+            border-radius: 32px;
+            padding: 24px 18px 30px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 20px 60px rgba(0, 100, 255, 0.05);
+        }
+        .line {
+            position: absolute;
+            left: -5%;
+            width: 110%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 100, 255, 0.2), transparent);
+            pointer-events: none;
+        }
+        .line-top { top: 18%; transform: rotate(-2deg); }
+        .line-bottom { bottom: 12%; transform: rotate(2deg); }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 170, 255, 0.3);
+        }
+        .logo span { color: #00aaff; text-shadow: 0 0 30px rgba(0, 170, 255, 0.5); }
+        .badge {
+            background: rgba(0, 170, 255, 0.1);
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 10px;
+            color: #00aaff;
+            letter-spacing: 1px;
+        }
+
+        .user-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0, 170, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+        }
+        .user-card .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+            color: #aaa;
+        }
+        .user-card .row .value { color: #fff; font-weight: 600; }
+        .user-card .row .value.green { color: #00cc44; }
+        .user-card .row .value.red { color: #ff4444; }
+        .user-card .row .value.blue { color: #00aaff; }
+        .user-card .row .key-value {
+            font-family: monospace;
+            font-size: 12px;
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            color: #00aaff;
+            word-break: break-all;
+            max-width: 180px;
+        }
+
+        .section-title {
+            color: #666;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 16px 0 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .plan {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0, 170, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+        .plan:hover { border-color: rgba(0, 170, 255, 0.3); background: rgba(0, 170, 255, 0.03); }
+        .plan.active { border-color: #00aaff; background: rgba(0, 170, 255, 0.06); }
+        .plan .info .name { font-weight: 600; color: #fff; font-size: 14px; }
+        .plan .info .price { font-size: 13px; color: #00aaff; margin-top: 2px; }
+        .plan .radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .plan .radio.active { border-color: #00aaff; background: #00aaff; }
+        .plan .radio.active::after {
+            content: '✓';
+            color: #000;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #0055cc, #00aaff);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            z-index: 2;
+            margin-top: 6px;
+        }
+        .btn-primary:disabled { opacity: 0.5; }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            z-index: 2;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { border-color: rgba(0, 170, 255, 0.4); background: rgba(0, 170, 255, 0.05); }
+
+        .footer {
+            text-align: center;
+            color: #222;
+            font-size: 9px;
+            margin-top: 18px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000000dd;
+            backdrop-filter: blur(12px);
+            padding: 14px 24px;
+            border-radius: 18px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: 0.4s;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; bottom: 40px; }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+        .confirm-overlay.show { display: flex; }
+        .confirm-box {
+            background: #1a1a1a;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            border-radius: 32px;
+            padding: 28px 24px 30px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .confirm-box .title { font-size: 20px; font-weight: 700; text-align: center; color: #fff; }
+        .confirm-box .subtitle { text-align: center; color: #888; font-size: 12px; margin-bottom: 18px; }
+        .confirm-box .line { height: 1px; background: rgba(0, 170, 255, 0.1); margin: 10px 0; }
+        .confirm-box .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+        .confirm-box .row .label { color: #666; }
+        .confirm-box .row .value { color: #fff; font-weight: 600; }
+        .confirm-box .row .value.blue { color: #00aaff; }
+        .confirm-box .total {
+            background: rgba(0, 170, 255, 0.05);
+            border: 1px solid rgba(0, 170, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 14px 0 18px;
+            text-align: center;
+        }
+        .confirm-box .total .price { font-size: 28px; font-weight: 800; color: #00aaff; }
+        .confirm-box .total .price span { font-size: 16px; font-weight: 400; color: #888; }
+        .confirm-box .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .confirm-box .btn-cancel {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #888;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .confirm-box .btn-confirm {
+            padding: 16px;
+            border-radius: 18px;
+            border: none;
+            background: linear-gradient(135deg, #0055cc, #00aaff);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .connect-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .connect-overlay.show { display: flex; }
+        .connect-box {
+            background: #1a1a1a;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            border-radius: 32px;
+            padding: 28px 22px 30px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .connect-box .title { font-size: 20px; font-weight: 700; text-align: center; color: #fff; }
+        .connect-box .subtitle { text-align: center; color: #888; font-size: 12px; margin-bottom: 18px; }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .device-btn {
+            padding: 12px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #888;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .device-btn.active {
+            border-color: #00aaff;
+            background: #00aaff11;
+            color: #fff;
+        }
+        .device-btn:hover { border-color: #00aaff33; }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .app-btn {
+            padding: 10px 6px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #888;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .app-btn.active {
+            border-color: #00aaff;
+            background: #00aaff11;
+            color: #fff;
+        }
+        .app-btn:hover { border-color: #00aaff33; }
+        .app-btn .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+
+        .connect-box .line { height: 1px; background: rgba(0, 170, 255, 0.1); margin: 12px 0; }
+
+        .btn-download {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #0055cc, #00aaff);
+            border: none;
+            border-radius: 18px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-download:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-download:active { transform: scale(0.97); }
+
+        .btn-connect {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00aa44, #00cc44);
+            border: none;
+            border-radius: 18px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-connect:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-connect:active { transform: scale(0.97); }
+
+        .btn-close-connect {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 18px;
+            color: #888;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .connect-box .key-box {
+            background: #0a0a0a;
+            border: 1px solid #00aaff33;
+            border-radius: 14px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .connect-box .key-box .key {
+            font-family: monospace;
+            font-size: 12px;
+            color: #00aaff;
+            word-break: break-all;
+            background: #111;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #00aaff22;
+            margin-bottom: 8px;
+        }
+        .connect-box .key-box .btn-copy {
+            padding: 8px 16px;
+            background: #00aaff22;
+            border: 1px solid #00aaff44;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .connect-box .key-box .btn-copy:hover { background: #00aaff33; }
+
+        .connect-box .disabled-config {
+            background: #1a0000;
+            border: 1px solid #ff444433;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            text-align: center;
+            color: #ff6666;
+            font-size: 13px;
+        }
+        .connect-box .disabled-config strong {
+            color: #ff4444;
+            display: block;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .connect-box .disabled-config .bot-link {
+            color: #00aaff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn-group-connect {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-group-connect .btn-download {
+            margin-top: 0;
+        }
+        .btn-group-connect .btn-connect {
+            margin-top: 0;
+        }
+
+        @media (max-width: 420px) {
+            .app-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .device-grid { grid-template-columns: 1fr 1fr; }
+            .btn-group-connect { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainApp">
+    <div class="line line-top"></div>
+    <div class="line line-bottom"></div>
+
+    <div class="header">
+        <div class="logo"><span>✦</span> NEON <span>VPN</span></div>
+        <div class="badge">v2.0</div>
+    </div>
+
+    <div class="user-card" id="userCard">
+        <div class="row"><span>👤 Пользователь</span><span class="value" id="userName">—</span></div>
+        <div class="row"><span>📅 Статус</span><span class="value red" id="userStatus">Неактивен</span></div>
+        <div class="row"><span>⏳ До</span><span class="value" id="userExpiry">—</span></div>
+        <div class="row" style="border-top:1px solid #222;padding-top:8px;margin-top:4px;">
+            <span>🔑 Ключ</span>
+            <span class="key-value" id="userKey">не найден</span>
+        </div>
+    </div>
+
+    <div class="section-title">💎 ВЫБЕРИ ТАРИФ</div>
+    <div id="plans"></div>
+
+    <button class="btn-primary" id="buyBtn">КУПИТЬ ПОДПИСКУ</button>
+    <button class="btn-secondary" id="connectBtn">📱 ПОДКЛЮЧИТЬ УСТРОЙСТВО</button>
+
+    <div class="footer">NEON VPN © 2026</div>
+</div>
+
+<!-- ===== ОКНО ПОДКЛЮЧЕНИЯ ===== -->
+<div class="connect-overlay" id="connectOverlay">
+    <div class="connect-box">
+        <div class="title">📱 ПОДКЛЮЧЕНИЕ</div>
+        <div class="subtitle">Выберите устройство и приложение</div>
+        <div class="line"></div>
+
+        <div style="color:#888;font-size:11px;letter-spacing:1px;margin-bottom:6px;">УСТРОЙСТВО</div>
+        <div class="device-grid" id="deviceGrid">
+            <div class="device-btn" data-device="iphone">📱 iPhone</div>
+            <div class="device-btn" data-device="android">📱 Android</div>
+            <div class="device-btn" data-device="windows">💻 Windows</div>
+            <div class="device-btn" data-device="mac">🍏 Mac</div>
+        </div>
+
+        <div style="color:#888;font-size:11px;letter-spacing:1px;margin:10px 0 6px;">ПРИЛОЖЕНИЕ</div>
+        <div class="app-grid" id="appGrid"></div>
+
+        <div class="line"></div>
+
+        <div class="key-box">
+            <div style="color:#888;font-size:11px;margin-bottom:4px;">🔑 ВАШ КЛЮЧ</div>
+            <div class="key" id="connectKey">—</div>
+            <button class="btn-copy" id="copyKeyBtn">📋 СКОПИРОВАТЬ</button>
+        </div>
+
+        <div class="disabled-config" id="disabledConfig">
+            <strong>⛔ КОНФИГ НЕАКТИВЕН</strong>
+            Купите подписку в боте<br>
+            <a href="https://t.me/NeonVpnRobot" class="bot-link">@NeonVpnRobot</a>
+        </div>
+
+        <div class="btn-group-connect">
+            <button class="btn-download" id="downloadBtn" disabled>⬇️ СКАЧАТЬ</button>
+            <button class="btn-connect" id="connectActionBtn" disabled>🔗 ПОДКЛЮЧИТЬСЯ</button>
+        </div>
+        <button class="btn-close-connect" id="closeConnectBtn">🔙 ЗАКРЫТЬ</button>
+    </div>
+</div>
+
+<!-- ===== ОКНО ПОДТВЕРЖДЕНИЯ ОПЛАТЫ ===== -->
+<div class="confirm-overlay" id="confirmOverlay" style="display:none;">
+    <div class="confirm-box">
+        <div class="title">🔐 ПОДТВЕРЖДЕНИЕ</div>
+        <div class="subtitle">Проверьте данные перед оплатой</div>
+        <div class="line"></div>
+        <div class="row"><span class="label">📅 Тариф</span><span class="value" id="cPlan">—</span></div>
+        <div class="row"><span class="label">💰 Цена</span><span class="value blue" id="cPrice">—</span></div>
+        <div class="row"><span class="label">💳 Оплата</span><span class="value blue" id="cPayType">Рубли</span></div>
+        <div class="line"></div>
+        <div class="total">
+            <div style="color:#888;font-size:12px;">ИТОГО</div>
+            <div class="price"><span id="cTotal">0</span> <span>₽</span></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-cancel" id="cancelBtn">❌ НАЗАД</button>
+            <button class="btn-confirm" id="confirmBtn">✅ ОПЛАТИТЬ</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const PLANS = [
+        { id: '1m', name: '1 месяц', price_rub: 170, price_stars: 150, days: 30, tribute: 'pzSp' },
+        { id: '3m', name: '3 месяца', price_rub: 450, price_stars: 400, days: 90, tribute: 'pzSq' },
+        { id: '6m', name: '6 месяцев', price_rub: 750, price_stars: 650, days: 180, tribute: 'pzSr' },
+        { id: '12m', name: '12 месяцев', price_rub: 1100, price_stars: 950, days: 365, tribute: 'pzSt' },
+    ];
+
+    const APPS = {
+        iphone: [
+            { id: 'happ', name: 'Happ', icon: '🛡️', store: 'https://apps.apple.com/ru/app/happ-proxy-utility/id6504287215', scheme: 'happ://' },
+            { id: 'streisand', name: 'Streisand', icon: '🌐', store: 'https://apps.apple.com/app/streisand/id6450534064', scheme: 'streisand://' },
+            { id: 'shadowrocket', name: 'Shadowrocket', icon: '🚀', store: 'https://apps.apple.com/app/shadowrocket/id932747118', scheme: 'shadowrocket://' },
+        ],
+        android: [
+            { id: 'happ', name: 'Happ', icon: '🛡️', store: 'https://play.google.com/store/apps/details?id=app.hiddify', scheme: 'happ://' },
+            { id: 'v2rayng', name: 'v2rayNG', icon: '📡', store: 'https://play.google.com/store/apps/details?id=com.v2ray.ang', scheme: 'v2rayng://' },
+            { id: 'nekobox', name: 'NekoBox', icon: '📦', store: 'https://play.google.com/store/apps/details?id=com.marlk.nekobox', scheme: 'nekobox://' },
+        ],
+        windows: [
+            { id: 'happ', name: 'Happ', icon: '🛡️', store: 'https://github.com/hiddify/hiddify-next/releases', scheme: 'happ://' },
+            { id: 'nekoray', name: 'Nekoray', icon: '💻', store: 'https://github.com/MatsuriDayo/nekoray/releases', scheme: 'nekoray://' },
+            { id: 'v2rayng', name: 'v2rayNG (Win)', icon: '📡', store: 'https://github.com/2dust/v2rayNG/releases', scheme: 'v2rayng://' },
+        ],
+        mac: [
+            { id: 'happ', name: 'Happ', icon: '🛡️', store: 'https://apps.apple.com/app/hiddify/id6596773797', scheme: 'happ://' },
+            { id: 'nekoray', name: 'Nekoray', icon: '💻', store: 'https://github.com/MatsuriDayo/nekoray/releases', scheme: 'nekoray://' },
+            { id: 'streisand', name: 'Streisand', icon: '🌐', store: 'https://apps.apple.com/app/streisand/id6450534064', scheme: 'streisand://' },
+        ],
+    };
+
+    const user = tg.initDataUnsafe?.user || { id: '7481288398', username: 'neon_user' };
+    let userData = {
+        username: user.username || 'tg' + user.id,
+        status: '❌ Неактивен',
+        key: '—',
+        expiry: '—'
+    };
+
+    let selectedPlan = null;
+    let selectedDevice = null;
+    let selectedApp = null;
+    let isActive = false;
+    let toastTimer = null;
+
+    // ===== ЗАПРОС ДАННЫХ У БОТА =====
+    function fetchUserData() {
+        tg.sendData(JSON.stringify({ action: 'get_user_data' }));
+    }
+
+    // ===== ОБРАБОТКА ОТВЕТА ОТ БОТА =====
+    tg.onEvent('web_app_data', function(data) {
+        try {
+            const response = JSON.parse(data);
+            userData.status = response.status || '❌ Неизвестно';
+            userData.key = response.key || '—';
+            userData.username = response.username || user.username;
+            userData.expiry = response.subscription_end || '—';
+            updateUI();
+        } catch (e) {
+            console.error('Ошибка парсинга ответа бота:', e);
+        }
+    });
+
+    function updateUI() {
+        document.getElementById('userName').textContent = userData.username;
+        document.getElementById('userKey').textContent = userData.key;
+        document.getElementById('userExpiry').textContent = userData.expiry ? new Date(userData.expiry).toLocaleDateString() : '—';
+        
+        const statusEl = document.getElementById('userStatus');
+        statusEl.textContent = userData.status;
+        if (userData.status.includes('Активна')) {
+            statusEl.className = 'value green';
+            isActive = true;
+        } else if (userData.status.includes('Пробная')) {
+            statusEl.className = 'value blue';
+            isActive = true;
+        } else {
+            statusEl.className = 'value red';
+            isActive = false;
+        }
+        
+        // Обновляем ключ в окне подключения
+        document.getElementById('connectKey').textContent = userData.key;
+        const disabledBlock = document.getElementById('disabledConfig');
+        if (isActive) {
+            disabledBlock.style.display = 'none';
+        } else {
+            disabledBlock.style.display = 'block';
+        }
+    }
+
+    // ===== РЕНДЕР ТАРИФОВ =====
+    function renderPlans() {
+        const container = document.getElementById('plans');
+        container.innerHTML = '';
+        PLANS.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'plan';
+            div.dataset.id = p.id;
+            div.innerHTML = `
+                <div class="info">
+                    <div class="name">${p.name}</div>
+                    <div class="price">${p.price_rub} ₽ / ${p.price_stars} ⭐</div>
+                </div>
+                <div class="radio"></div>
+            `;
+            div.addEventListener('click', function() {
+                document.querySelectorAll('.plan').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.plan .radio').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('.radio').classList.add('active');
+                selectedPlan = this.dataset.id;
+                document.getElementById('buyBtn').disabled = false;
+                showToast(`✅ Выбран тариф: ${PLANS.find(p => p.id === selectedPlan).name}`);
+            });
+            container.appendChild(div);
+        });
+    }
+
+    // ===== РЕНДЕР ПРИЛОЖЕНИЙ =====
+    function renderApps(device) {
+        const grid = document.getElementById('appGrid');
+        grid.innerHTML = '';
+        const apps = APPS[device] || [];
+        apps.forEach(app => {
+            const div = document.createElement('div');
+            div.className = 'app-btn';
+            div.dataset.app = app.id;
+            div.innerHTML = `<span class="icon">${app.icon}</span>${app.name}`;
+            div.addEventListener('click', function() {
+                document.querySelectorAll('.app-btn').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                selectedApp = app;
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('connectActionBtn').disabled = false;
+                document.getElementById('downloadBtn').textContent = '⬇️ СКАЧАТЬ';
+                showToast(`✅ Выбрано: ${app.name}`);
+            });
+            grid.appendChild(div);
+        });
+    }
+
+    // ===== ВЫБОР УСТРОЙСТВА =====
+    document.querySelectorAll('.device-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.device-btn').forEach(el => el.classList.remove('active'));
+            this.classList.add('active');
+            selectedDevice = this.dataset.device;
+            selectedApp = null;
+            document.getElementById('downloadBtn').disabled = true;
+            document.getElementById('connectActionBtn').disabled = true;
+            document.getElementById('downloadBtn').textContent = '⬇️ ВЫБЕРИТЕ ПРИЛОЖЕНИЕ';
+            renderApps(selectedDevice);
+            showToast(`📱 Устройство: ${this.textContent.trim()}`);
+        });
+    });
+
+    // ===== КНОПКА СКАЧАТЬ =====
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        if (!selectedDevice || !selectedApp) {
+            showToast('❌ Выберите устройство и приложение');
+            return;
+        }
+        tg.openTelegramLink(selectedApp.store);
+        showToast('⬇️ Открываем страницу загрузки...', 3000);
+    });
+
+    // ===== КНОПКА ПОДКЛЮЧИТЬСЯ =====
+    document.getElementById('connectActionBtn').addEventListener('click', function() {
+        if (!selectedDevice || !selectedApp) {
+            showToast('❌ Выберите устройство и приложение');
+            return;
+        }
+        const key = document.getElementById('connectKey').textContent;
+        if (key && key !== '—' && key !== 'Не найден') {
+            const link = `${selectedApp.scheme}${key}`;
+            tg.openTelegramLink(link);
+            showToast('🔗 Открываем приложение...', 3000);
+        } else {
+            showToast('❌ Ключ не найден. Купите подписку.');
+        }
+    });
+
+    // ===== КНОПКА КОПИРОВАНИЯ КЛЮЧА =====
+    document.getElementById('copyKeyBtn').addEventListener('click', function() {
+        const key = document.getElementById('connectKey').textContent;
+        if (key && key !== '—' && key !== 'Не найден') {
+            navigator.clipboard.writeText(key).then(() => {
+                showToast('📋 Ключ скопирован!');
+            }).catch(() => {
+                showToast('❌ Не удалось скопировать');
+            });
+        } else {
+            showToast('❌ Ключ не найден');
+        }
+    });
+
+    // ===== ОКНО ПОДКЛЮЧЕНИЯ =====
+    document.getElementById('connectBtn').addEventListener('click', function() {
+        document.getElementById('connectKey').textContent = userData.key;
+        document.getElementById('connectOverlay').classList.add('show');
+    });
+
+    document.getElementById('closeConnectBtn').addEventListener('click', function() {
+        document.getElementById('connectOverlay').classList.remove('show');
+    });
+
+    // ===== ОПЛАТА =====
+    document.getElementById('buyBtn').addEventListener('click', function() {
+        if (!selectedPlan) {
+            showToast('❌ Выберите тариф');
+            return;
+        }
+        const plan = PLANS.find(p => p.id === selectedPlan);
+        document.getElementById('cPlan').textContent = plan.name;
+        document.getElementById('cPrice').textContent = plan.price_rub + ' ₽';
+        document.getElementById('cTotal').textContent = plan.price_rub;
+        document.getElementById('confirmOverlay').style.display = 'flex';
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+        document.getElementById('confirmOverlay').style.display = 'none';
+    });
+
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+        document.getElementById('confirmOverlay').style.display = 'none';
+        const plan = PLANS.find(p => p.id === selectedPlan);
+        const link = `https://t.me/tribute/app?startapp=${plan.tribute}`;
+        showToast('🔗 Перенаправление в Tribute...', 3000);
+        setTimeout(() => {
+            tg.openTelegramLink(link);
+        }, 1000);
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, duration = 3000) {
+        if (toastTimer) clearTimeout(toastTimer);
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    renderPlans();
+    document.getElementById('buyBtn').disabled = true;
+    fetchUserData();
+</script>
+</body>
+</html>

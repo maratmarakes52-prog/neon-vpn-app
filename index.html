@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 40px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .osint-label {
+            font-size: 11px;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+
+        .photo-col {
+            text-align: center;
+        }
+
+        .target-photo {
+            width: 220px;
+            height: 220px;
+            object-fit: cover;
+            border: 1px solid #222;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .photo-caption {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .schema-col {
+            padding-top: 5px;
+        }
+
+        .target-name {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .target-subtitle {
+            font-size: 11px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 35px;
+        }
+
+        .relations {
+            margin-bottom: 35px;
+        }
+
+        .relation-row {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .relation-type {
+            color: #666;
+            font-size: 12px;
+            width: 70px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .arrow {
+            color: #444;
+            margin: 0 12px;
+            font-size: 12px;
+        }
+
+        .relation-name {
+            color: #ccc;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .sister-row {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #111;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .features {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.8;
+            border-top: 1px solid #111;
+            padding-top: 25px;
+            margin-bottom: 40px;
+        }
+
+        .features span {
+            color: #aaa;
+            margin-right: 5px;
+        }
+
+        .bottom-photo-section {
+            text-align: center;
+            border-top: 1px solid #111;
+            padding-top: 30px;
+        }
+
+        .bottom-photo {
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #111;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .bottom-caption {
+            font-size: 9px;
+            color: #333;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #111;
+            font-size: 9px;
+            color: #222;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 25px;
+            }
+            
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .target-name {
+                font-size: 22px;
+            }
+            
+            .photo-col {
+                order: -1;
+            }
+            
+            .target-photo {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header">
+            <div class="osint-label">Open Source Intelligence</div>
+            <div class="title">ОСИНТ СХЕМА</div>
+        </div>
+
+        <div class="main-grid">
+            
+            <div class="photo-col">
+                <img src="https://z-cdn-media.chatglm.cn/files/61f2f717-07a7-4bbb-850d-386691d36acd.jpeg?auth_key=1891625564-0ce38ad1381943689744df9a7d94a72d-0-c10209383f69f1007e163598c9342fb1" 
+                     alt="target" 
+                     class="target-photo">
+                <div class="photo-caption">Объект / Target</div>
+            </div>
+
+            <div class="schema-col">
+                
+                <div class="target-name">Помозов Никита Олегович</div>
+                <div class="target-subtitle">ЦЕЛЬ РАЗВЕДКИ</div>
+
+                <div class="relations">
+                    <div class="section-label">Семейные связи</div>
+                    
+                    <div class="relation-row">
+                        <span class="relation-type">Мать</span>
+                        <span class="arrow">→</span>
+                        <span class="relation-name">Татьяна Помозова</span>
+                    </div>
+                    
+                    <div class="relation-row">
+                        <span class="relation-type">Отец</span>
+                        <span class="arrow">→</span>
+                        <span class="relation-name">Олег Помозов</span>
+                    </div>
+                    
+                    <div class="relation-row sister-row">
+                        <span class="relation-type">Сестра</span>
+                        <span class="arrow">↓</span>
+                        <span class="relation-name">Кира Помозова</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="section-label">Приметы</div>
+            <span>Среднего роста</span>
+            <span>Волнистые волосы</span>
+            <span>Плотного телосложения</span>
+        </div>
+
+        <div class="bottom-photo-section">
+            <img src="https://z-cdn-media.chatglm.cn/files/fe51f979-9914-4018-ad6d-2c0534d87f6f.jpeg?auth_key=1891625564-23decb42964d4a97b9fef070bea302cf-0-243d3ff7754fdbed83b38336f339bda5" 
+                 alt="photo" 
+                 class="bottom-photo">
+            <div class="bottom-caption">Фото объекта / Photo evidence</div>
+        </div>
+
+        <div class="footer">
+            OSINT SCHEMA // CLASSIFIED // FOR INTERNAL USE ONLY
+        </div>
+
+    </div>
+</body>
+</html>

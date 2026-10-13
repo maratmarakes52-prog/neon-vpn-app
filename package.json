@@ -1,0 +1,9 @@
+{
+  "name": "noir-market",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOIR MARKET Telegram Mini App and bot",
+  "engines": {
+    "node": ">=20"
+  }
+}
